@@ -51,9 +51,11 @@ query_gen_model = query_gen_prompt | ChatOpenAI(
 
 graph_builder = StateGraph(State)
 
+GENERATED_QUERY = ''
 
 def query_gen_node(state: State):
     last_message = state["messages"][-1]
+    global GENERATED_QUERY
 
     # SQL query results limiter
     if isinstance(last_message, ToolMessage):
@@ -61,7 +63,7 @@ def query_gen_node(state: State):
             # The sql_db_query tool was called right before
             query = extract_sql_query(state)
             if query:
-                print(f"Query: {query}")
+                GENERATED_QUERY = query
                 query_results_list = db.run_no_throw(query, include_columns=True)
 
                 # trend_analysis_plot(query_results_list)
@@ -69,7 +71,7 @@ def query_gen_node(state: State):
                 items_threshold = 5  # Max number of items to consider
                 if len(query_results_list) > items_threshold:
                     # Store query results in csv
-                    export_dicts_to_csv(query_results_list, "query_results.csv")
+                    # export_dicts_to_csv(query_results_list, "query_results.csv")
 
                     # Limit the content passed to the LLM
                     updated_content = str(query_results_list[:items_threshold])
@@ -97,12 +99,33 @@ graph_builder.add_edge("query_gen_tools", "query_gen")
 graph_builder.set_entry_point("query_gen")
 graph = graph_builder.compile()
 
-QUESTION = "i want all reviews from Equinix LLC"
+QUESTIONS = [
+    'Give me the top 5 accounts with the most reviews',
 
-inputs = {"messages": [{"role": "user", "content": QUESTION}]}
-answer = graph.invoke(inputs)
-print(f"Q: {QUESTION}")
-print(f"A: {answer['messages'][-1].content}")
+    'i want all reviews from Equinix LLC',
+
+    """Can you provide all the reviews we received from companies 
+    1.NTT DATA BUSINESS SOLUTIONS A/S
+    2. Hampshire County Council
+    from Support CSAT/ Support SAT Surveys regarding the products SLES and SLES for SAP""",
+
+    'Id like to find the feedback we received for the SLES product from BCL Business unit that come from Support CSAT/ Support SAT surveys',
+
+    """Id like to find the feedback we received for the SLES product from BCL Business unit that come from Support CSAT/SAT surveys""",
+
+    """Can i have all the Documentation-related reviews regarding the CaaS product?"""
+]
+for q_no,QUESTION in enumerate(QUESTIONS,1):
+
+    inputs = {"messages": [{"role": "user", "content": QUESTION}]}
+    answer = graph.invoke(inputs)
+
+    print(f" ~~~ QUESTION {q_no} ~~~ ")
+    print(f"Q: {QUESTION}\n")
+    print(f"A: {answer['messages'][-1].content}")
+    print(f"\nGenerated Query:")
+    print(GENERATED_QUERY)
+    print("\n\n")
 
 # Exported for external use
 __all__ = ["graph"]
