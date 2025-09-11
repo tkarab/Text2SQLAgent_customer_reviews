@@ -1,0 +1,4 @@
+include_tables:
+  - qualtrics_enriched_data
+
+schema: public
