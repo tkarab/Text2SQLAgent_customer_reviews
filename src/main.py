@@ -11,10 +11,10 @@ from langgraph.graph import END, StateGraph
 from langchain_core.messages.tool import ToolMessage
 
 # custom packages
-from src.prompts import QUERY_GEN_SYSTEM
-from src.models import CustomSQLDatabase, State
-from src.utils import export_dicts_to_csv, read_include_tables, extract_sql_query
-from src.trend_analysis import trend_analysis_plot
+from prompts import QUERY_GEN_SYSTEM
+from models import CustomSQLDatabase, State
+from utils import export_dicts_to_csv, read_include_tables, extract_sql_query
+from trend_analysis import trend_analysis_plot
 load_dotenv()
 
 db_host = os.getenv("DB_HOST")
