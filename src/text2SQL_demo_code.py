@@ -100,20 +100,22 @@ graph_builder.set_entry_point("query_gen")
 graph = graph_builder.compile()
 
 QUESTIONS = [
-    'Give me the top 5 accounts with the most reviews',
+    # 'Give me the top 5 accounts with the most reviews',
+    #
+    # 'i want all reviews from Viseca Payment Services SA',
+    #
+    # """Can you provide all the reviews we received from companies
+    # 1.NTT DATA BUSINESS SOLUTIONS A/S
+    # 2. Hampshire County Council
+    # from Support CSAT/ Support SAT Surveys regarding the products SLES and SLES for SAP""",
+    #
+    # 'Id like to find the feedback we received for the SLES product from BCL Business unit that come from Support CSAT/ Support SAT surveys',
+    #
+    # """Id like to find the feedback we received for the SLES product from BCL Business unit that come from Support CSAT/SAT surveys""",
+    #
+    # """Can i have all the Documentation-related reviews regarding the CaaS product?""",
 
-    'i want all reviews from Equinix LLC',
-
-    """Can you provide all the reviews we received from companies 
-    1.NTT DATA BUSINESS SOLUTIONS A/S
-    2. Hampshire County Council
-    from Support CSAT/ Support SAT Surveys regarding the products SLES and SLES for SAP""",
-
-    'Id like to find the feedback we received for the SLES product from BCL Business unit that come from Support CSAT/ Support SAT surveys',
-
-    """Id like to find the feedback we received for the SLES product from BCL Business unit that come from Support CSAT/SAT surveys""",
-
-    """Can i have all the Documentation-related reviews regarding the CaaS product?"""
+    """Please provide all the reviews from January 2024 regarding Rancher and SUSE Multi-Linux Manager Products, from customers from the EMEA region"""
 ]
 for q_no,QUESTION in enumerate(QUESTIONS,1):
 
