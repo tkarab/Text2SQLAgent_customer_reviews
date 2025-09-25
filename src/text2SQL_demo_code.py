@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 
 # third party packages
 from langchain_community.agent_toolkits import SQLDatabaseToolkit
-from langchain_openai import ChatOpenAI
+from langchain_google_vertexai import ChatVertexAI
 from langgraph.prebuilt import ToolNode, tools_condition
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langgraph.graph import END, StateGraph
@@ -13,7 +13,7 @@ from langchain_core.messages.tool import ToolMessage
 # custom packages
 from prompts import QUERY_GEN_SYSTEM
 from models import CustomSQLDatabase, State
-from utils import export_dicts_to_csv, read_include_tables, extract_sql_query
+from utils import export_dicts_to_csv, read_include_tables, extract_sql_query, get_vertex_path
 from trend_analysis import trend_analysis_plot
 load_dotenv()
 
@@ -35,8 +35,20 @@ db = CustomSQLDatabase.from_uri(
     schema=schema
     )
 
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = get_vertex_path()
+GCP_PROJECT = "voice-of-customer-ai-194353"
+GCP_LOCATION = "us-central1"
+
 # SQL Manipulation Tools
-toolkit = SQLDatabaseToolkit(db=db, llm=ChatOpenAI(model="gpt-4o"))
+toolkit = SQLDatabaseToolkit(
+    db=db,
+    llm=ChatVertexAI(
+        model="gemini-2.5-pro",
+        temperature=0,
+        project=GCP_PROJECT,
+        location=GCP_LOCATION
+    ),
+)
 sql_db_toolkit_tools = toolkit.get_tools()
 
 query_gen_prompt = ChatPromptTemplate.from_messages(
@@ -45,9 +57,12 @@ query_gen_prompt = ChatPromptTemplate.from_messages(
         MessagesPlaceholder(variable_name="messages"),
     ]
 )
-query_gen_model = query_gen_prompt | ChatOpenAI(
-    model="gpt-4o", temperature=0
-).bind_tools(tools=sql_db_toolkit_tools)
+query_gen_model = query_gen_prompt | ChatVertexAI(
+        model="gemini-2.5-pro",
+        temperature=0,
+        project=GCP_PROJECT,
+        location=GCP_LOCATION,
+    ).bind_tools(tools=sql_db_toolkit_tools)
 
 graph_builder = StateGraph(State)
 

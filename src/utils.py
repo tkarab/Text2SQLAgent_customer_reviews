@@ -1,6 +1,7 @@
 import csv
 import yaml
 from langchain_core.messages.ai import AIMessage
+import os
 
 def export_dicts_to_csv(data, file_path):
     """
@@ -56,3 +57,10 @@ def extract_sql_query(data):
     except Exception as e:
         print(f"Exception: {e}") 
         return None  # No query generated or extraction failed
+
+def get_vertex_path():
+    file_path = os.path.abspath(__file__)
+    src_folder = os.path.dirname(file_path)
+    credentials_path = os.path.join(src_folder, 'config', 'vertex.json')
+    
+    return credentials_path
